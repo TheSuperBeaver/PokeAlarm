@@ -230,6 +230,18 @@ def get_dist(ptA, ptB="default"):
 	dist = c * radius
 	return dist
 
+def get_dist_str(dist):
+	units = 'yd' if config['UNITS'] == 'imperial' else 'm'
+	if units == 'm' and dist > 1000:
+		dist = "%.1f" % (dist / 1000)
+		units = 'km'
+	elif units == 'yd' and dist > 1760:
+		dist = "%.1f" % (dist / 1760)
+		units = 'miles'
+	else:
+		dist = "%d" % dist
+	return '%s%s' % (str(dist), units)
+
 #Return back the following:
 #time_left = Time remaining in minutes and seconds
 #time_12 = Dissapear time in 12h format, eg "2:30:16 PM"	
@@ -254,6 +266,16 @@ def get_respawn_text(respawn_info):
 	respawn_texts = ('', '15m later back for 15m.', '15m later back for 30m.', '30m later back for 15m.')
 	respawn_inds = (0, 1, 2, 1, 3)
 	return respawn_texts[respawn_inds[respawn_info]]
+
+def set_new_location(location):
+	try:
+		config['LOCATION'] = get_pos_by_name(location)
+		log.info("Location changed to : %s" % config['LOCATION'])
+		return True
+	except Exception as e:
+		log.error("Error changing location: %s" % e)
+		return False
+
 
 #########################################################################
 

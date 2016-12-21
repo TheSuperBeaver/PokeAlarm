@@ -16,7 +16,7 @@ import os
 #Local Modules
 from alarms import config, set_config
 from alarms.alarm_manager import Alarm_Manager
-from alarms.utils import get_pos_by_name
+from alarms.utils import get_pos_by_name, set_new_location
 from alarms.geofence import get_geofence_static_map
 
 reload(sys)
@@ -44,6 +44,8 @@ def get_id(data):
 		return data.get('gym_id')
 	elif data['type'] == 'gym-details':
 		return data.get('id')
+	elif data['type'] == 'token_needed':
+		return 'captcha'
 	else:
 		return None
 	
@@ -53,13 +55,12 @@ def return_location():
 	
 @app.route('/location/',methods=['POST'])
 def update_location():
-	try:
-		config['LOCATION'] = get_pos_by_name(request.args.get('location'))
-	except Exception as e:
-		log.error("Error changing location: %s" % e)
+	success = set_new_location(request.args.get('location'))
+	if success:
+		log.info("Location updated via POST request!")
+		return "Location changed to : %s" % config['LOCATION']
+	else:
 		abort(400)
-	log.info("Location updated via POST request!")
-	return "Location changed to : %s" % config['LOCATION']
 
 @app.route('/geofence/',methods=['GET'])
 def return_geofence():

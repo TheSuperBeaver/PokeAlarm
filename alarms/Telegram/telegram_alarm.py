@@ -29,6 +29,11 @@ class Telegram_Alarm(Alarm):
 			#'chat_id': If no default, required
 			'title':"A Team <old_team> gym has fallen!",
 			'body': "It is now controlled by <new_team>."
+		},
+		'captcha': {
+			# 'chat_id': If no default, required
+			'title': 'dummy',
+			'body': 'dummy'
 		}
 	}
 	
@@ -48,7 +53,8 @@ class Telegram_Alarm(Alarm):
 		self.pokemon = self.set_alert(settings.get('pokemon', {}), self._defaults['pokemon'])
 		self.pokestop = self.set_alert(settings.get('pokestop', {}), self._defaults['pokestop'])
 		self.gym = self.set_alert(settings.get('gym', {}), self._defaults['gym'])
-		
+		self.captcha = self.set_alert(settings.get('captcha', {}), self._defaults['captcha'])
+
 
 		#Connect and send startup messages
  		self.connect()
@@ -109,8 +115,33 @@ class Telegram_Alarm(Alarm):
   				'disable_notification': "%s" % alert['disable_map_notification']
   			}
 			try_sending(log, self.connect, "Telegram (Loc)", self.client.sendLocation, args)
-			
-			
+
+	# Trigger an alert based on Captcha notification
+	def captcha_alert(self, captcha_info):
+		text = 'Something with Captchas'
+		account = captcha_info['account']
+
+		body = ' \n{} more token needed. Solve via bookmarklet at https://pgorelease.nianticlabs.com/'.format(
+			captcha_info['token_needed']) if captcha_info['token_needed'] > 0 else ' \nNo more token needed.'
+
+		if captcha_info['status'] == 'encounter':
+			text = '<b>Captcha for account {}!</b>{}'.format(account, body)
+		elif captcha_info['status'] == 'timeout':
+			text = '<b>Timeout waiting for captcha token for account {}</b>{}'.format(account, body)
+		elif captcha_info['status'] == 'solved':
+			text = '<b>Solved captcha for account {}</b>{}'.format(account, body)
+		elif captcha_info['status'] == 'failed':
+			text = '<b>Failed solving captcha for account {}</b>{}'.format(account, body)
+
+		args = {
+			'chat_id': self.captcha['chat_id'],
+			'text': text,
+			'parse_mode': 'HTML',
+			'disable_web_page_preview': 'False',
+			'disable_notification': 'False'
+		}
+		try_sending(log, self.connect, "Telegram", self.client.sendMessage, args)
+
 	#Trigger an alert based on Pokemon info
 	def pokemon_alert(self, pokemon_info):
 		if self.pokemon['stickers']:
