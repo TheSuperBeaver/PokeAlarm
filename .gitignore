@@ -1,6 +1,6 @@
 *.pyc
 coords*.txt
-config/config.ini
+config/*
 nohup.out
 
 # ignore multiple configuration files and possible startup scripts
@@ -8,3 +8,5 @@ nohup.out
 /*.bat
 /*.sh
 .idea
+.pydevproject
+.project
