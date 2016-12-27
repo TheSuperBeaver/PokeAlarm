@@ -17,8 +17,8 @@ class Telegram_Alarm(Alarm):
 	_defaults = {
 		'pokemon':{
 			#'chat_id': If no default, required
-			'title': "A wild <pkmn> has appeared!",
-			'body': "Available until <24h_time> (<time_left>)."
+			'title': "Un <pkmn> est apparu !",
+			'body': "IV <iv> (<atk>, <def>, <sta>). Disponible jusqu'a <24h_time> (<time_left>)."
 		},
 		'pokestop':{
 			#'chat_id': If no default, required
@@ -31,9 +31,9 @@ class Telegram_Alarm(Alarm):
 			'body': "It is now controlled by <new_team>."
 		},
 		'captcha': {
-			# 'chat_id': If no default, required
-			'title': 'dummy',
-			'body': 'dummy'
+			'chat_id': "@pkmons",
+			'title': "Captcha a resoudre !",
+			'body': "Captcha a resoudre"
 		}
 	}
 	
@@ -87,6 +87,15 @@ class Telegram_Alarm(Alarm):
  				'disable_notification': 'True'
  				}
 			try_sending(log, self.connect, 'Telegram', self.client.sendSticker, stickerargs)
+
+		if alert['location']:
+  			args = { 
+  				'chat_id': alert['chat_id'],
+  				'latitude': info['lat'],
+  				'longitude':  info['lng'],
+  				'disable_notification': "%s" % alert['disable_map_notification']
+  			}
+			try_sending(log, self.connect, "Telegram (Loc)", self.client.sendLocation, args)
 			
 		if alert['venue']:
 			args = { 
@@ -107,14 +116,7 @@ class Telegram_Alarm(Alarm):
 				'disable_notification': 'False'
 			}
 			try_sending(log, self.connect, "Telegram", self.client.sendMessage, args)
-		if alert['location']:
-  			args = { 
-  				'chat_id': alert['chat_id'],
-  				'latitude': info['lat'],
-  				'longitude':  info['lng'],
-  				'disable_notification': "%s" % alert['disable_map_notification']
-  			}
-			try_sending(log, self.connect, "Telegram (Loc)", self.client.sendLocation, args)
+
 
 	# Trigger an alert based on Captcha notification
 	def captcha_alert(self, captcha_info):
