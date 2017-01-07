@@ -20,7 +20,7 @@ class Alarm(object):
 	def __init__(self):
 		raise NotImplementedError("This is an abstract method.")
 	
-	def is_active(self):
+	def is_captcha_active(self):
 		raise NotImplementedError("This is an abstract method.")
 	
 	#(Re)establishes Service connection
