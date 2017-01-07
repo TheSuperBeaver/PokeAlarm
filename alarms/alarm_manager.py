@@ -251,7 +251,7 @@ class Alarm_Manager(Thread):
 
 	# Send a notication about Captcha token needed
 	def trigger_captcha(self, data):
-		log.info("Captcha notification for account {} was triggered, captcha_is_active : %s".format(data['account']), alarm.is_captcha_active)
+		log.info("Captcha notification for account {} was triggered, captcha_is_active".format(data['account']))
 		for alarm in self.alarms:
 			if alarm.is_captcha_active is True:
 				alarm.captcha_alert(data)
