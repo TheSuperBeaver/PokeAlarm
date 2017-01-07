@@ -18,22 +18,26 @@ class Telegram_Alarm(Alarm):
 		'pokemon':{
 			#'chat_id': If no default, required
 			'title': "Un <pkmn> est apparu !",
-			'body': "IV <iv> (<atk>, <def>, <sta>). Disponible jusqu'a <24h_time> (<time_left>)."
+			'body': "IV <iv> (<atk>, <def>, <sta>). Disponible jusqu'a <24h_time> (<time_left>).",
+			'active': "True"
 		},
 		'pokestop':{
 			#'chat_id': If no default, required
 			'title':"Someone has placed a lure on a Pokestop!",
-			'body': "Lure will expire at <24h_time> (<time_left>)."
+			'body': "Lure will expire at <24h_time> (<time_left>).",
+			'active': "False"
 		},
 		'gym':{
 			#'chat_id': If no default, required
 			'title':"A Team <old_team> gym has fallen!",
-			'body': "It is now controlled by <new_team>."
+			'body': "It is now controlled by <new_team>.",
+			'active': "False"
 		},
 		'captcha': {
-			'chat_id': "@pkmons",
-			'title': "Captcha a resoudre !",
-			'body': "Captcha a resoudre"
+			# 'chat_id': If no default, required,
+			'title': "Captcha to solve !",
+			'body': "Captcha has to be solved",
+			'active': "False"
 		}
 	}
 	
@@ -48,20 +52,26 @@ class Telegram_Alarm(Alarm):
 		self.startup_message = settings.get('startup_message', "True")
 		self.startup_list = settings.get('startup_list', "True")
 		self.stickers = parse_boolean(settings.get('stickers', 'True'))
+		self.captcha_active = parse_boolean(settings.get('captcha_active', 'False'))
 
 		#Set Alerts
 		self.pokemon = self.set_alert(settings.get('pokemon', {}), self._defaults['pokemon'])
 		self.pokestop = self.set_alert(settings.get('pokestop', {}), self._defaults['pokestop'])
 		self.gym = self.set_alert(settings.get('gym', {}), self._defaults['gym'])
+		
 		self.captcha = self.set_alert(settings.get('captcha', {}), self._defaults['captcha'])
-
 
 		#Connect and send startup messages
  		self.connect()
 		if parse_boolean(self.startup_message):
 			self.client.sendMessage(self.pokemon['chat_id'], 'PokeAlarm activated! We will alert this chat about pokemon.')
 		log.info("Telegram Alarm intialized.")
+		if self.captcha['active'] is True :
+			log.info("Captcha notifications will be sent to the chat : %s", self.captcha['chat_id'])
 
+	def is_captcha_active(self):
+		return self.captcha['active'];
+		
 	#(Re)establishes Telegram connection
 	def connect(self):
 		self.client = telepot.Bot(self.bot_token) 
@@ -76,6 +86,7 @@ class Telegram_Alarm(Alarm):
 		alert['location'] = parse_boolean(settings.get('location', self.location))
 		alert['disable_map_notification'] = parse_boolean(settings.get('disable_map_notification', self.disable_map_notification))
 		alert['stickers'] = parse_boolean(settings.get('stickers', self.stickers))
+		alert['active'] = parse_boolean(settings.get('active', default['active']))
 		return alert
  		
 	#Send Alert to Telegram
@@ -123,17 +134,17 @@ class Telegram_Alarm(Alarm):
 		text = 'Something with Captchas'
 		account = captcha_info['account']
 
-		body = ' \n{} more token needed. Solve via bookmarklet at https://pgorelease.nianticlabs.com/'.format(
-			captcha_info['token_needed']) if captcha_info['token_needed'] > 0 else ' \nNo more token needed.'
+		body = ' \n{} plus de captcha a resoudre. Resoudre a partir du lien http://www.pkmons.xyz/captcha'.format(
+			captcha_info['token_needed']) if captcha_info['token_needed'] > 0 else ' \nPlus de captcha a resoudre.'
 
 		if captcha_info['status'] == 'encounter':
-			text = '<b>Captcha for account {}!</b>{}'.format(account, body)
+			text = '<b>Un promeneur demande reconnaissance !</b>{}'.format(body)
 		elif captcha_info['status'] == 'timeout':
-			text = '<b>Timeout waiting for captcha token for account {}</b>{}'.format(account, body)
+			text = '<b>Temps ecoule pour la resolution de captcha</b>{}'.format(body)
 		elif captcha_info['status'] == 'solved':
-			text = '<b>Solved captcha for account {}</b>{}'.format(account, body)
+			text = '<b>Captcha resolue !! Merci !!</b>{}'.format(body)
 		elif captcha_info['status'] == 'failed':
-			text = '<b>Failed solving captcha for account {}</b>{}'.format(account, body)
+			text = '<b>La captcha entree est incorrecte</b>{}'.format(body)
 
 		args = {
 			'chat_id': self.captcha['chat_id'],
