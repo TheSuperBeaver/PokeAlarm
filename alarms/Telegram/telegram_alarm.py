@@ -138,7 +138,7 @@ class Telegram_Alarm(Alarm):
 			captcha_info['token_needed']) if captcha_info['token_needed'] > 0 else ' \nPlus de captcha a resoudre.'
 
 		if captcha_info['status'] == 'encounter':
-			text = '<b>Un promeneur demande reconnaissance !</b>{}'.format(body)
+			text = '<b>Un promeneur demande une captcha !</b>'
 		elif captcha_info['status'] == 'timeout':
 			text = '<b>Temps ecoule pour la resolution de captcha</b>{}'.format(body)
 		elif captcha_info['status'] == 'solved':
