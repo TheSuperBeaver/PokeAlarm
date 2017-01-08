@@ -70,7 +70,7 @@ class Telegram_Alarm(Alarm):
 			log.info("Captcha notifications will be sent to the chat : %s", self.captcha['chat_id'])
 
 	def is_captcha_active(self):
-		return self.captcha['active'];
+		return str(self.captcha['active']);
 		
 	#(Re)establishes Telegram connection
 	def connect(self):
