@@ -253,8 +253,8 @@ class Alarm_Manager(Thread):
 	def trigger_captcha(self, data):
 		log.info("Captcha notification for account {} was triggered".format(data['account']))
 		for alarm in self.alarms:
-			log.info("Alarm active : %s is_captcha_active : % s", alarm['active'], alarm.is_captcha_active)
-			if alarm['active'] is True:
+			log.info("Alarm is_captcha_active : % s", alarm.is_captcha_active)
+			if alarm.is_captcha_active is True:
 				alarm.captcha_alert(data)
 
 	#Send a notication about Pokestop
