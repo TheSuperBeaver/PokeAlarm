@@ -135,7 +135,7 @@ class Telegram_Alarm(Alarm):
 		account = captcha_info['account']
 
 		body = ' \n{} Plus de captcha a resoudre. Resoudre a partir du lien http://www.pkmons.xyz/captcha'.format(
-			captcha_info['token_needed']) if captcha_info['token_needed'] > 0 else ' \nToutes les captcha sont résolues.'
+			captcha_info['token_needed']) if captcha_info['token_needed'] > 0 else ' \nToutes les captcha sont resolues.'
 
 		if captcha_info['status'] == 'encounter':
 			text = '<b>Un promeneur demande une captcha !</b>'
